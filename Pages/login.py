@@ -1,5 +1,7 @@
+# User login page v1
 from nicegui import ui
 from Components.navbar import navbar
+from database import connect_db
 
 
 @ui.page('/login')
@@ -18,9 +20,28 @@ def login_page():
             password = ui.input('Password', password=True).classes('w-full')
 
             def login():
-                ui.notify(f'Welcome {email.value}')
-                ui.navigate.to('/dashboard')
+                if not email.value or not password.value:
+                    ui.notify("Please fill in all fields", type="negative")
+                    return
 
+                conn = connect_db()
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    "SELECT * FROM users WHERE email=? AND password=?",
+                    (email.value, password.value)
+                )
+
+                user = cursor.fetchone()
+                conn.close()
+
+                if user:
+                    ui.notify("Login successful", type="positive")
+                    ui.navigate.to('/dashboard')
+                else:
+                    ui.notify("Invalid credentials", type="negative")
+
+            # ✅ Login button (you were missing this)
             ui.button(
                 'Login',
                 on_click=login
