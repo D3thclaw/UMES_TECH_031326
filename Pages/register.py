@@ -10,20 +10,22 @@ def register_page():
     # Centered container
     with ui.column().classes('w-full h-screen items-center justify-center bg-gray-50'):
 
-        # Card
         with ui.card().classes('w-96 p-6 shadow-xl rounded-2xl'):
 
-            ui.label('Create Account').classes(
-                'text-2xl font-bold mb-4 text-center'
-            )
+            # Centered header section
+            with ui.column().classes('items-center w-full'):
+                ui.label('Create Account').classes(
+                    'text-2xl font-bold mb-2 text-center'
+                )
+                ui.image('static/Logo2_Transparent.png').classes('w-52 mb-4')
 
+            # Form fields (full width)
             name = ui.input('Full Name').classes('w-full')
             email = ui.input('Email').classes('w-full')
             password = ui.input('Password', password=True).classes('w-full')
             confirm_password = ui.input(
                 'Confirm Password', password=True
             ).classes('w-full')
-
 
             def register():
 
@@ -57,7 +59,7 @@ def register_page():
                 conn.close()
 
                 ui.notify("Account created!", type="positive")
-                ui.navigate.to('/login')
+                ui.navigate.to('/dashboard')
 
             ui.button(
                 'Register',
@@ -69,7 +71,7 @@ def register_page():
 
             ui.button(
                 'Back to Login',
-                on_click=lambda: ui.navigate.to('/login')
+                on_click=lambda: ui.navigate.to('/')
             ).classes(
                 'w-full mt-2 bg-gray-200 hover:bg-gray-300 '
                 'text-black font-medium py-2 rounded-xl'
