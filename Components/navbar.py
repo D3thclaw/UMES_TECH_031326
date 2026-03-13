@@ -12,5 +12,9 @@ def navbar():
 
         # Right side
         with ui.row():
-            #ui.button('Home', on_click=lambda: ui.navigate.to('/'))
-            ui.button('Login', on_click=lambda: ui.navigate.to('/'))
+            ui.button('Home', on_click=lambda: ui.navigate.to('/')).props('flat')
+            ui.button('Login', on_click=lambda: ui.navigate.to('/')).props('flat')
+            ui.button('Features', on_click=lambda: ui.navigate.to('/')).props('flat')
+            ui.button('About', on_click=lambda: ui.navigate.to('/')).props('flat')
+            ui.button('Contact', on_click=lambda: ui.navigate.to('/')).props('flat')
+

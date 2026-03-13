@@ -7,19 +7,77 @@ from database import connect_db
 def register_page():
     navbar()
 
-    # Centered container
-    with ui.column().classes('w-full h-screen items-center justify-center bg-gray-50'):
+    # 🔥 Background carousel
+    ui.add_head_html('''
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
 
-        with ui.card().classes('w-96 p-6 shadow-xl rounded-2xl'):
+    #bg-carousel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: background-image 1s ease-in-out;
+        z-index: -2;
+    }
 
-            # Centered header section
+    #bg-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: -1;
+    }
+    </style>
+
+    <div id="bg-carousel"></div>
+    <div id="bg-overlay"></div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const images = [
+            "/static/background_img2.jpg",
+            "/static/background_img1.jpg",
+            "/static/background_img3.jpg",
+        ];
+
+        let index = 0;
+        const bg = document.getElementById("bg-carousel");
+
+        function changeBackground() {
+            bg.style.backgroundImage = `url(${images[index]})`;
+            index = (index + 1) % images.length;
+        }
+
+        changeBackground();
+        setInterval(changeBackground, 4000);
+    });
+    </script>
+    ''')
+
+    # Centered container (removed bg-gray-50)
+    with ui.column().classes('w-full h-screen items-center justify-center'):
+
+        with ui.card().classes(
+            'w-96 p-6 shadow-2xl rounded-2xl bg-white/80 backdrop-blur-md'
+        ):
+
             with ui.column().classes('items-center w-full'):
                 ui.label('Create Account').classes(
                     'text-2xl font-bold mb-2 text-center'
                 )
                 ui.image('static/Logo2_Transparent.png').classes('w-52 mb-4')
 
-            # Form fields (full width)
             name = ui.input('Full Name').classes('w-full')
             email = ui.input('Email').classes('w-full')
             password = ui.input('Password', password=True).classes('w-full')
@@ -40,7 +98,6 @@ def register_page():
                 conn = connect_db()
                 cursor = conn.cursor()
 
-                # Check if user exists
                 cursor.execute("SELECT * FROM users WHERE email=?", (email.value,))
                 user = cursor.fetchone()
 
@@ -49,7 +106,6 @@ def register_page():
                     conn.close()
                     return
 
-                # Insert new user
                 cursor.execute(
                     "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
                     (name.value, email.value, password.value)

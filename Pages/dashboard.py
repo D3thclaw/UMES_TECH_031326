@@ -6,7 +6,9 @@ from Components.navbar import navbar
 def dashboard_page():
     navbar()
 
-    with ui.column().classes('w-full h-screen items-center justify-center bg-gray-50'):
+    with ui.column().classes(
+        'w-full h-screen items-center justify-center bg-gray-50'
+    ):
         ui.image('static/Logo2_Transparent.png').classes('w-52 mb-4')
 
         ui.label('What would you like to buy today?') \
@@ -18,14 +20,17 @@ def dashboard_page():
 
         def submit():
             if not purchase_input.value:
-                ui.notify('Please enter an item you would like to purchase',
-                          type='negative')
+                ui.notify(
+                    'Please enter an item you would like to purchase',
+                    type='negative'
+                )
                 return
 
             # Store in session
             app.storage.user['purchase'] = purchase_input.value
 
-            ui.notify('Saved!', type='positive')
+            # Go to results page
+            ui.navigate.to('/search-results')
 
         ui.button(
             'Submit',

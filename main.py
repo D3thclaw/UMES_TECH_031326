@@ -6,7 +6,7 @@ from nicegui import ui, app
 
 
 # import pages so they register
-from Pages import login, register
+from Pages import login, register, dashboard, result_display
 
 from database import create_table
 app.add_static_files('/static', 'static')

@@ -1,25 +1,42 @@
-from nicegui import ui
+from nicegui import ui, app
 import sqlite3
 from datetime import datetime
 
 
-DB_PATH = 'Data/user_search_results_db.sqlite'
+DB_PATH = 'Data/user_search_results_100.sqlite'
 
 
-def fetch_all_results():
+def fetch_relevant_results(user_query):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT *
-        FROM search_results
-        ORDER BY source_engine, rank_position ASC
-    """)
+    keywords = user_query.lower().split()
 
+    cursor.execute("SELECT * FROM user_search_results")
     rows = cursor.fetchall()
     conn.close()
-    return rows
+
+    scored_results = []
+
+    for row in rows:
+        score = 0
+        title = row['title'].lower()
+        snippet = row['snippet'].lower()
+
+        for word in keywords:
+            if word in title:
+                score += 3      # strong weight
+            if word in snippet:
+                score += 1      # weaker weight
+
+        if score > 0:
+            scored_results.append((score, row))
+
+    # Sort by relevance score DESC
+    scored_results.sort(key=lambda x: x[0], reverse=True)
+
+    return [r[1] for r in scored_results]
 
 
 def log_click(result_id, query, source_engine):
@@ -38,13 +55,23 @@ def log_click(result_id, query, source_engine):
 @ui.page('/search-results')
 def search_results_page():
 
-    ui.label("Search Results").classes(
-        "text-3xl font-bold mb-6"
+    user_query = app.storage.user.get('purchase')
+
+    if not user_query:
+        ui.label("No search query found.").classes("text-red-500")
+        return
+
+    ui.label(f'Search results for: "{user_query}"').classes(
+        "text-2xl font-bold mb-6"
     )
 
-    results = fetch_all_results()
+    results = fetch_relevant_results(user_query)
 
-    # Create modal once
+    if not results:
+        ui.label("No relevant results found.").classes("text-gray-500")
+        return
+
+    # Modal
     with ui.dialog() as dialog, ui.card().classes('w-96'):
         modal_title = ui.label().classes("text-xl font-bold")
         modal_rating = ui.label()
@@ -64,43 +91,42 @@ def search_results_page():
 
         log_click(
             result['result_id'],
-            result['query'],
+            user_query,
             result['source_engine']
         )
 
         dialog.open()
 
 
-    # Render results Google-style
-    for result in results:
+    # Render Results
+    with ui.column().classes("items-center w-full"):
 
-        with ui.column().classes("mb-6 w-full max-w-3xl"):
+        for result in results:
 
-            ui.label(
-                f"{result['source_engine'].upper()} - Rank #{result['rank_position']}"
-            ).classes("text-xs text-gray-400")
+            with ui.column().classes("mb-6 w-full max-w-3xl"):
 
-            ui.link(
-                result['title'],
-                '#'
-            ).classes(
-                "text-xl text-blue-600 hover:underline cursor-pointer"
-            ).on(
-                'click',
-                lambda e, r=result: open_modal(r)
-            )
+                ui.label(
+                    f"{result['source_engine'].upper()} - Rank #{result['rank_position']}"
+                ).classes("text-xs text-gray-400")
 
-            ui.label(result['display_url']).classes(
-                "text-sm text-green-700"
-            )
+                ui.link(
+                    result['title'],
+                    '#'
+                ).classes(
+                    "text-xl text-blue-600 hover:underline cursor-pointer"
+                ).on(
+                    'click',
+                    lambda e, r=result: open_modal(r)
+                )
 
-            ui.label(result['snippet']).classes(
-                "text-gray-700"
-            )
+                ui.label(result['display_url']).classes(
+                    "text-sm text-green-700"
+                )
 
-            ui.label(
-                f"⭐ {result['rating']} • ${result['price']}"
-            ).classes("text-sm text-gray-600")
+                ui.label(result['snippet']).classes(
+                    "text-gray-700"
+                )
 
-
-ui.run()
+                ui.label(
+                    f"⭐ {result['rating']} • ${result['price']}"
+                ).classes("text-sm text-gray-600")
