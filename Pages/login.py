@@ -7,9 +7,62 @@ from database import connect_db
 @ui.page('/')
 def login_page():
     navbar()
+    ui.add_head_html('''
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    #bg-carousel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: background-image 1s ease-in-out;
+        z-index: -2;
+    }
+
+    #bg-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: -1;
+    }
+    </style>
+
+    <div id="bg-carousel"></div>
+    <div id="bg-overlay"></div>
+
+    <script>
+    const images = [
+        "static/background_img2.jpg",
+        "static/background_img1.jpg",
+        "static/background_img3.jpg",
+    ];
+
+    let index = 0;
+    const bg = document.getElementById("bg-carousel");
+
+    function changeBackground() {
+        bg.style.backgroundImage = `url(${images[index]})`;
+        index = (index + 1) % images.length;
+    }
+
+    changeBackground();
+    setInterval(changeBackground, 4000);
+    </script>
+    ''')
 
     # Full screen centered container
-    with ui.column().classes('w-full h-screen items-center justify-center bg-gray-50'):
+    with ui.column().classes('w-full h-screen items-center justify-center'):
 
         # Card container
         with ui.card().classes('w-96 p-6 shadow-xl rounded-2xl items-center'):
