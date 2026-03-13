@@ -4,7 +4,7 @@ from Components.navbar import navbar
 from database import connect_db
 
 
-@ui.page('/login')
+@ui.page('/')
 def login_page():
     navbar()
 
@@ -12,7 +12,10 @@ def login_page():
     with ui.column().classes('w-full h-screen items-center justify-center bg-gray-50'):
 
         # Card container
-        with ui.card().classes('w-96 p-6 shadow-xl rounded-2xl'):
+        with ui.card().classes('w-96 p-6 shadow-xl rounded-2xl items-center'):
+
+            # Logo added here
+            ui.image('static/Logo2_Transparent.png').classes('w-52 mb-4')
 
             ui.label('Login').classes('text-2xl font-bold mb-4 text-center')
 
