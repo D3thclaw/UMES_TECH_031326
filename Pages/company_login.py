@@ -76,7 +76,7 @@ def login_page():
 
                     ui.button(
                         'Login',
-                        on_click=login
+                        on_click= lambda: ui.navigate.to('/results')  #login
                     ).classes(
                         'w-full mt-6 bg-blue-600 hover:bg-blue-700 '
                         'text-white font-semibold py-2 rounded-xl'
